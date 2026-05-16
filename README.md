@@ -4,6 +4,14 @@ A high-performance C solver for the Heston stochastic-volatility PDE. It prices 
 
 ## Overview
 
+The Heston PDE for the option price $V(S, v, t)$ is
+
+$$ \frac{\partial V}{\partial t} + \frac{1}{2} vS^2 \frac{\partial^2 V}{\partial S^2} + \rho \xi v S \frac{\partial^2V}{\partial S\partial v} + \frac{1}{2}\xi^2v\frac{\partial^2V}{\partial v^2} + rS\frac{\partial V}{\partial S} + \kappa (\theta - v) \frac{\partial V}{\partial v} - rV = 0$$
+
+And the discretized equation is
+
+$$\frac{\partial V}{\partial t} + \frac{1}{2}vS^2 \left [ \frac{V_{i-1,j} - 2V_{i,j} + V_{i+1,j}}{(\Delta S)^2}  \right] + \rho\xi vS \left [ \frac{V_{i+1,j+1} - V_{i+1,j-1} - V_{i-1,j+1} + V_{i-1,j-1}}{4\Delta S\Delta v} \right] + \frac{1}{2}\xi^2 v \left [ \frac{V_{i,j-1} - 2 V_{i,j} + V_{i,j+1}}{(\Delta v)^2} \right] + rS \left [ \frac{V_{i+1,j} - V_{i-1,j}}{2\Delta S} \right] + \kappa (\theta - v) \left [ \frac{V_{i,j+1} - V_{i,j-1}}{2\Delta v} \right ] - r V_{i,j} = 0$$
+
 For each parameter set `(κ, θ, ξ, ρ, τ, r)` and strike `K`, the solver:
 
 1. Builds non-uniform `S` and `v` grids that concentrate nodes where they matter most (near `S = K` and `v = 0`).
@@ -14,6 +22,7 @@ For each parameter set `(κ, θ, ξ, ρ, τ, r)` and strike `K`, the solver:
 4. Steps backward in time from the payoff at maturity for all four option types (European/American × Call/Put), enforcing the early-exercise constraint for American options.
 5. Computes Δ, Γ, Θ, Vega, Vanna and Volga with 2nd-order non-uniform finite-difference stencils.
 6. Streams each result block into `dataset_Options.h5`.
+
 
 ## Output
 
