@@ -1,0 +1,10 @@
+# Bundled third-party library — install system-wide instead
+SuiteSparse/
+
+# Build artifacts
+*.o
+main
+
+# Output
+dataset_Options.h5
+*.h5

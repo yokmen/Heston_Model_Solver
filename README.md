@@ -45,9 +45,31 @@ prix, delta, gamma, theta_gr, vega, vanna, volga
 - A C compiler with OpenMP (`-fopenmp`)
 - HDF5 (serial), discovered via `pkg-config hdf5-serial` or `pkg-config hdf5`
 - BLAS and LAPACK (`-lblas -llapack`)
-- SuiteSparse — UMFPACK, CHOLMOD, AMD, CAMD, COLAMD, CCOLAMD, METIS-4, `SuiteSparse_config` (bundled in `SuiteSparse/`)
+- SuiteSparse — at least UMFPACK and its transitive deps (AMD, CHOLMOD, COLAMD, CCOLAMD, CAMD, `SuiteSparse_config`)
 
-Build the bundled SuiteSparse libraries first if they are not already present (`cd SuiteSparse && make`).
+SuiteSparse is **not** bundled — install it through your system package manager or from source:
+
+```bash
+# Debian / Ubuntu
+sudo apt install libsuitesparse-dev libhdf5-dev libblas-dev liblapack-dev
+
+# Fedora / RHEL
+sudo dnf install suitesparse-devel hdf5-devel blas-devel lapack-devel
+
+# macOS (Homebrew)
+brew install suite-sparse hdf5 openblas
+```
+
+Upstream source: <https://people.engr.tamu.edu/davis/suitesparse.html>.
+
+The current [Makefile](Makefile) links against a bundled `SuiteSparse/` tree via static archives and local include paths. If you install SuiteSparse system-wide, replace the `LIB` and `IFLAGS` lines with something like:
+
+```make
+LIB    = -lumfpack -lamd -lcholmod -lcolamd -lccolamd -lcamd \
+         -lsuitesparseconfig -lm -lblas -llapack -fopenmp \
+         $(shell pkg-config --libs hdf5-serial 2>/dev/null || pkg-config --libs hdf5)
+IFLAGS = $(shell pkg-config --cflags suitesparse 2>/dev/null)
+```
 
 ### Targets
 
